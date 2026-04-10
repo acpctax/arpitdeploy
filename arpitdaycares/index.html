@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACPC Daycare Diagnostic — Arpit's Locations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #1a6b4a;
+  --accent-light: #e8f5ee;
+  --accent-hover: #15573d;
+  --text: #1a1a2e;
+  --muted: #6b7280;
+  --border: #e2e5ea;
+  --card: #ffffff;
+  --input-bg: #f8f9fb;
+  --bg: #f1f3f6;
+  --closed-bg: #fef3c7;
+  --closed-border: #f59e0b;
+  --closed-text: #92400e;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --font: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 740px; margin: 0 auto; padding: 0 20px 80px; }
+
+.sticky-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+}
+.sticky-inner { max-width: 740px; margin: 0 auto; padding: 0 20px; }
+
+.loc-tabs { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.loc-tab {
+  flex: 1; padding: 7px 8px; border-radius: 20px; font-family: var(--font);
+  font-size: 12px; font-weight: 500; border: 1.5px solid var(--border);
+  background: var(--card); color: var(--muted); cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: all 0.15s; min-width: 0;
+}
+.loc-tab.active {
+  font-weight: 700; border-color: var(--accent);
+  background: var(--accent); color: #fff;
+}
+.loc-tab.diag-tab {
+  flex: 1.3; border-color: #6366f1; color: #6366f1; font-weight: 600;
+}
+.loc-tab.diag-tab.active {
+  background: #6366f1; border-color: #6366f1; color: #fff;
+}
+
+.section-tabs { display: flex; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--border); }
+.section-tab {
+  flex: 1; padding: 9px 0; font-family: var(--font); font-size: 13px;
+  font-weight: 700; border: none; cursor: pointer;
+  background: var(--input-bg); color: var(--muted); transition: all 0.15s;
+}
+.section-tab.active { background: var(--accent); color: #fff; }
+
+.page-header { text-align: center; padding: 28px 20px 16px; }
+.page-header .tag {
+  font-size: 11.5px; font-weight: 700; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px;
+}
+.page-header h1 {
+  font-family: var(--font-display); font-weight: 800; font-size: 26px;
+  color: var(--text); letter-spacing: -0.03em; margin-bottom: 6px;
+}
+.page-header .sub {
+  font-size: 13.5px; color: var(--muted); max-width: 540px;
+  margin: 0 auto; line-height: 1.5;
+}
+
+.card {
+  background: var(--card); border-radius: var(--radius-xl);
+  padding: 36px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+.sh { margin-bottom: 24px; }
+.sh:not(:first-child) { margin-top: 44px; }
+.sh-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.sh-num {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--accent);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; flex-shrink: 0;
+}
+.sh-num.purple { background: #6366f1; }
+.sh-title { font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+.sh-sub { font-size: 13.5px; color: var(--muted); margin-left: 48px; line-height: 1.5; }
+
+.field { margin-bottom: 20px; }
+.field-label {
+  font-weight: 600; font-size: 14px; display: block; margin-bottom: 5px;
+}
+.field-label .req { color: var(--accent); }
+.field-hint {
+  font-size: 12.5px; color: var(--muted); margin: 0 0 6px; line-height: 1.4;
+}
+
+input[type="text"], input[type="number"], input[type="email"], textarea {
+  font-family: var(--font); font-size: 14px; padding: 10px 14px;
+  border-radius: var(--radius); border: 1.5px solid var(--border);
+  background: var(--input-bg); color: var(--text);
+  width: 100%; outline: none; transition: border-color 0.2s;
+}
+input:focus, textarea:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 60px; }
+
+.prefix-wrap { position: relative; }
+.prefix-wrap .prefix {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 14px; color: var(--muted);
+}
+.prefix-wrap input { padding-left: 28px; }
+
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  font-family: var(--font); font-size: 13.5px; font-weight: 400;
+  padding: 8px 16px; border-radius: 20px;
+  border: 1.5px solid var(--border); background: var(--input-bg);
+  color: var(--text); cursor: pointer; transition: all 0.15s;
+  user-select: none;
+}
+.pill.selected {
+  font-weight: 600; border: 2px solid var(--accent);
+  background: var(--accent-light); color: var(--accent);
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+.grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; }
+
+.age-grid {
+  display: grid; grid-template-columns: auto 1fr 1fr; gap: 8px 10px;
+  align-items: center;
+}
+.age-grid .col-header {
+  font-size: 11px; font-weight: 700; color: var(--accent); text-align: center;
+}
+.age-grid .row-label { font-size: 12.5px; font-weight: 500; }
+
+/* Per-location diagnostic grid */
+.loc-diag-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
+.loc-diag-cell { }
+.loc-diag-cell .loc-label {
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.loc-diag-cell .pill-group { gap: 4px; }
+.loc-diag-cell .pill { font-size: 11.5px; padding: 5px 10px; }
+
+.funding-card {
+  border: 1.5px solid var(--border); border-radius: var(--radius-lg);
+  padding: 24px 24px 16px; margin-bottom: 20px; background: var(--card);
+}
+.funding-card.closed {
+  border-color: var(--closed-border); background: #fffef5;
+}
+.fc-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.fc-name { font-weight: 700; font-size: 16px; line-height: 1.3; }
+.fc-badge {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 12px; white-space: nowrap; flex-shrink: 0;
+}
+.fc-badge.active { background: var(--accent-light); color: var(--accent); }
+.fc-badge.closed { background: var(--closed-bg); color: var(--closed-text); }
+.fc-link {
+  font-size: 12.5px; color: var(--accent); text-decoration: none;
+  display: inline-block; margin-bottom: 4px; word-break: break-all;
+}
+.fc-link:hover { text-decoration: underline; }
+.fc-url-note { font-size: 11.5px; color: var(--muted); font-style: italic; margin: 2px 0 8px; }
+.fc-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 8px 0 12px; }
+.fc-status-note {
+  font-size: 12px; font-weight: 600; line-height: 1.4; margin: 0 0 16px;
+  padding: 8px 12px; border-radius: 8px;
+}
+.fc-status-note.active { color: var(--accent); background: var(--accent-light); }
+.fc-status-note.closed { color: var(--closed-text); background: var(--closed-bg); }
+
+.fc-q { margin-bottom: 16px; }
+.fc-q label { font-weight: 600; font-size: 13.5px; display: block; margin-bottom: 6px; }
+
+.funding-banner {
+  background: var(--accent-light); border-radius: 14px;
+  padding: 16px 20px; margin-bottom: 24px;
+  border: 1.5px solid rgba(26,107,74,0.13);
+}
+.funding-banner p {
+  font-size: 13.5px; color: var(--accent); font-weight: 600; line-height: 1.6;
+}
+
+.diag-banner {
+  background: #eef2ff; border-radius: 14px;
+  padding: 16px 20px; margin-bottom: 24px;
+  border: 1.5px solid rgba(99,102,241,0.15);
+}
+.diag-banner p {
+  font-size: 13.5px; color: #4338ca; font-weight: 600; line-height: 1.6;
+}
+
+.nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding: 0 4px; }
+.btn {
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  padding: 12px 28px; border-radius: 12px; cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary { border: 2px solid var(--border); background: var(--card); color: var(--text); }
+.btn-secondary:disabled { color: var(--border); cursor: not-allowed; }
+.btn-primary {
+  border: none; background: var(--accent); color: #fff; font-weight: 700;
+  box-shadow: 0 2px 8px rgba(26,107,74,0.25);
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:disabled { background: #9ca3af; box-shadow: none; cursor: not-allowed; }
+.btn-submit {
+  border: none; background: #6366f1; color: #fff; font-weight: 700;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+}
+.btn-submit:hover { background: #4f46e5; }
+
+.done-wrap { max-width: 720px; margin: 60px auto; text-align: center; padding: 0 20px; }
+.done-wrap h1 { font-family: var(--font-display); font-weight: 800; font-size: 32px; color: var(--accent); margin-bottom: 12px; }
+.done-wrap .sub { color: var(--muted); font-size: 15px; margin-bottom: 24px; line-height: 1.6; }
+
+.save-toast {
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  background: var(--accent); color: #fff; padding: 10px 20px;
+  border-radius: 10px; font-size: 13px; font-weight: 600;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.save-toast.show { opacity: 1; }
+
+@media (max-width: 600px) {
+  .grid-2, .grid-3, .grid-1-2 { grid-template-columns: 1fr; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .loc-diag-grid { grid-template-columns: 1fr 1fr; }
+  .age-grid { grid-template-columns: auto 1fr 1fr; }
+  .card { padding: 24px 18px; }
+  .page-header h1 { font-size: 22px; }
+  .loc-tab { font-size: 10.5px; padding: 6px 6px; }
+}
+@media (max-width: 400px) {
+  .loc-diag-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div class="save-toast" id="save-toast">Progress saved</div>
+
+<script>
+const SUBMIT_URL = "./submit.php";
+const STORAGE_KEY = "acpc_arpit_survey_v3";
+const NUM_LOCATIONS = 4;
+
+const FUNDING_PROGRAMS = [
+  {
+    id: "affordability_grant", name: "Affordability Grant",
+    url: "https://www.alberta.ca/affordability-grant", status: "ACTIVE",
+    desc: "Monthly operational funding for children 0 to kindergarten. Pays difference between flat parent fee ($326.25 FT / $230 PT) and the program\u2019s childcare fee by region and age.",
+    questions: [
+      { key: "signed", label: "Signed an Affordability Grant agreement?", type: "radio", options: [
+        {v:"yes-2025-26",l:"Yes \u2014 2025-26 signed"},{v:"yes-older",l:"Yes \u2014 older (pre-2025)"},{v:"no-applied",l:"Applied, not signed"},{v:"no",l:"No \u2014 never applied"},{v:"not-sure",l:"Not sure"}
+      ]},
+      { key: "monthly_amount", label: "Monthly Affordability Grant received ($)", type: "number", ph: "e.g. 15000" },
+      { key: "claiming_monthly", label: "Submitting monthly claims on time?", type: "radio", options: [
+        {v:"yes",l:"Yes \u2014 every month"},{v:"sometimes",l:"Sometimes miss"},{v:"no",l:"No"},{v:"na",l:"N/A"}
+      ]},
+    ]
+  },
+  {
+    id: "ece_workforce", name: "ECE Workforce Supports (Wage Top-Up, PD, Release Time)",
+    url: "https://www.alberta.ca/early-childhood-educator-workforce-supports-program", status: "ACTIVE",
+    desc: "Wage top-ups ($2.64/hr L1, $5.05/hr L2, $8.62/hr L3), PD funding (up to $2,000/yr per ECE), release time funding, and mandatory employer contribution (9.51% of wage top-up for CPP/EI/WCB). Replaced the Child Care Grant Funding Program April 1, 2026.",
+    questions: [
+      { key: "signed", label: "Signed the ECE Workforce Supports agreement?", type: "radio", options: [
+        {v:"yes-claiming",l:"Yes \u2014 claiming monthly"},{v:"yes-not-claiming",l:"Yes \u2014 signed but NOT claiming monthly"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}
+      ]},
+      { key: "monthly_wage_topup", label: "Monthly wage top-up received ($)", type: "number", ph: "e.g. 5000" },
+      { key: "pd_claimed", label: "Claimed PD funding this fiscal year?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no-eligible",l:"No \u2014 but likely eligible"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}
+      ]},
+      { key: "pd_amount", label: "PD funding claimed this year ($)", type: "number", ph: "e.g. 2000" },
+      { key: "release_time", label: "Claimed Release Time funding?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure / didn\u2019t know it existed"}
+      ]},
+      { key: "employer_contribution", label: "Receiving Mandatory Employer Contribution (9.51%)?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}
+      ]},
+    ]
+  },
+  {
+    id: "child_care_subsidy", name: "Child Care Subsidy (School-Age, K\u2013Gr 6)",
+    url: "https://www.alberta.ca/child-care-subsidy-program", status: "ACTIVE",
+    desc: "Income-tested subsidy for families with children K to grade 6 in licensed out-of-school care. Paid to operator. Families under $90K may qualify. Extended hours subsidy: +$100/mo per child for 4+ hours outside 6am\u20136pm.",
+    questions: [
+      { key: "serve_school_age", label: "Serve school-age children (K\u2013Gr 6)?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No \u2014 0 to kindergarten only"}
+      ]},
+      { key: "families_on_subsidy", label: "Families currently on subsidy at this location", type: "number", ph: "e.g. 12" },
+      { key: "monthly_subsidy", label: "Monthly subsidy revenue ($)", type: "number", ph: "e.g. 3000" },
+      { key: "extended_hours", label: "Any families on Extended Hours Subsidy (+$100/mo)?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no-dont-offer",l:"No \u2014 don\u2019t offer extended hours"},{v:"no-not-sure",l:"No / Not sure"}
+      ]},
+    ]
+  },
+  {
+    id: "icc", name: "Inclusive Child Care (ICC) Program",
+    url: "https://www.alberta.ca/inclusive-child-care-program", status: "ACTIVE",
+    desc: "Free supports for children with extra needs: on-site consultation (up to 6 months), training, funding for engagement supports. Available to ALL licensed programs.",
+    questions: [
+      { key: "participating", label: "Participating in the ICC Program?", type: "radio", options: [
+        {v:"yes-active",l:"Yes \u2014 currently"},{v:"yes-past",l:"Past participant"},{v:"no",l:"No \u2014 never applied"},{v:"not-aware",l:"Not aware of this"}
+      ]},
+      { key: "children_extra_needs", label: "Children with extra support needs at this location", type: "number", ph: "e.g. 3" },
+      { key: "funding_received", label: "ICC funding/resources received (describe)", type: "text", ph: "e.g. 6-month consultation..." },
+    ]
+  },
+  {
+    id: "inclusive_spaces", name: "Inclusive Spaces Program Grant",
+    url: "https://www.alberta.ca/inclusive-spaces-program-grant", status: "CLOSED",
+    statusNote: "Final intake closed Nov 21, 2025. Decisions expected early 2026.",
+    desc: "One-time grants for accessibility renovations (ramps, adaptive washrooms) and equipment (sensory tools, assistive tech). Up to $15M over 2024\u20132026.",
+    questions: [
+      { key: "applied", label: "Applied to this grant?", type: "radio", options: [
+        {v:"yes-received",l:"Yes \u2014 received"},{v:"yes-pending",l:"Yes \u2014 pending"},{v:"no",l:"No"},{v:"not-aware",l:"Not aware"}
+      ]},
+      { key: "amount", label: "Amount received ($)", type: "number", ph: "e.g. 25000" },
+    ]
+  },
+  {
+    id: "building_blocks", name: "Building Blocks Capital Grant",
+    url: "https://www.alberta.ca/building-blocks-capital-grant-program", status: "CLOSED",
+    statusNote: "Intake closed March 15, 2025. Applicants notified.",
+    desc: "Capital grants for NON-PROFIT providers. Up to $30,000/space (major) or $10,000/space (minor). Part of $53M federal-provincial commitment.",
+    questions: [
+      { key: "applied", label: "Applied to Building Blocks?", type: "radio", options: [
+        {v:"yes-received",l:"Yes \u2014 received"},{v:"yes-denied",l:"Yes \u2014 denied/pending"},{v:"no",l:"No"},{v:"not-eligible",l:"Not eligible (for-profit)"},{v:"not-aware",l:"Not aware"}
+      ]},
+      { key: "amount", label: "Amount received ($)", type: "number", ph: "e.g. 120000" },
+    ]
+  },
+  {
+    id: "space_creation", name: "Space Creation Grant",
+    url: "https://www.alberta.ca/space-creation-grant", status: "CLOSED",
+    statusNote: "Closed November 2024.",
+    desc: "Per-space grants for new spaces in high-need areas. Up to $6,000/space (deserts), $5,500 (high demand new), $5,000 (existing).",
+    questions: [
+      { key: "received", label: "Received a Space Creation Grant?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-aware",l:"Not aware"}
+      ]},
+      { key: "amount", label: "Amount ($)", type: "number", ph: "e.g. 30000" },
+    ]
+  },
+  {
+    id: "ece_bursary", name: "ECE Bursary ($10,000 per aspiring ECE)",
+    url: "https://www.alberta.ca/early-childhood-educator-bursary-program", status: "ACTIVE",
+    statusNote: "2025-26 intake closed Jan 15, 2026. Next: summer 2026.",
+    desc: "$10,000 bursary for ECEs pursuing ELCC certificate. $5K upfront + $5K after completion. Administered by NorQuest College.",
+    questions: [
+      { key: "staff_applied", label: "Any staff applied/received?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-aware",l:"Not aware"}
+      ]},
+      { key: "count", label: "How many staff?", type: "number", ph: "e.g. 2" },
+    ]
+  },
+  {
+    id: "supplemental_fees", name: "Supplemental / Optional Fees",
+    url: "https://www.alberta.ca/affordability-grant",
+    urlNote: "See Appendix D of the Affordability Grant Funding Guide.",
+    status: "ACTIVE", statusNote: "Must report bi-annually (Oct 31 & Apr 30).",
+    desc: "Optional fees on top of flat parent fee: transportation, field trips, meals, extracurriculars, diapers, extended/overnight hours. Families must opt in.",
+    questions: [
+      { key: "charging", label: "Currently charging supplemental fees?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Didn\u2019t know this was allowed"}
+      ]},
+      { key: "types", label: "Which fees? (select all)", type: "checkbox", options: [
+        "Hot lunch/meals","Transportation","Field trips","Extended hours","Overnight","Music/art","Language","Diapers/supplies","Other"
+      ]},
+      { key: "monthly_revenue", label: "Monthly supplemental fee revenue ($)", type: "number", ph: "e.g. 2000" },
+      { key: "reported", label: "Reported fees to ministry (bi-annual)?", type: "radio", options: [
+        {v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"na",l:"N/A"},{v:"not-sure",l:"Not sure"}
+      ]},
+    ]
+  },
+];
+
+// ── State defaults ──
+
+function defaultLocation() {
+  return {
+    name:"", address:"", legalEntity:"", entityType:"", profitStatus:"",
+    licensedCapacity:"", currentEnrollment:"", childrenSpecialNeeds:"",
+    ageInfantsFT:"", ageInfantsPT:"", ageToddlersFT:"", ageToddlersPT:"",
+    agePreschoolFT:"", agePreschoolPT:"", ageKinderFT:"", ageKinderPT:"",
+    ageSchoolAgeFT:"", ageSchoolAgePT:"",
+    waitlistSize:"", occupancyRate:"",
+    operatingHours:"", extendedHours:"", daysPerWeek:"", weeksPerYear:"",
+    parentFees:"", affordabilityGrant:"", wageTopUp:"", otherGovFunding:"",
+    otherRevenue:"", otherRevenueDesc:"",
+    rent:"", payroll:"", otherExpenses:"", ownerSalary:"",
+    totalECEs:"", eceL1:"", eceL2:"", eceL3:"",
+    uncertified:"", turnover:"", vacancies:"",
+    biggestChallenge:"", notes:"",
+    funding: {},
+  };
+}
+
+function defaultDiagnostics() {
+  const a4 = () => ["","","",""];
+  return {
+    vacancyGapDays: a4(), childTurnover12mo: a4(), outstandingBalances: a4(),
+    siblingDiscounts: "", siblingDiscountDetail: "",
+    staffDiscounts: "", staffDiscountDetail: "",
+    ftPtMismatch: "",
+    mealProvider: a4(), monthlyFoodCost: a4(),
+    absorbingSupplies: "", suppliesMonthlyCost: "",
+    ownOrLease: a4(), leaseExpiry: a4(),
+    rentIncreasePlanned: a4(), deferredMaintenance: a4(),
+    staffChildRatio: a4(),
+    adminStaffCount: "", directorCoverage: "",
+    avgWageL1: "", avgWageL2: "", avgWageL3: "", avgWageUncertified: "",
+    staffEligibleUpgrade: "",
+    hasAccountant: "", accountantWho: "",
+    accountingSoftware: "", parentPaymentMethod: "",
+    separateBooks: "", gstRegistered: "", gstFilingCurrent: "",
+    ownerCompensation: "", corporateStructure: "",
+    smallBusinessDeduction: "", personalExpenses: "", personalExpensesDetail: "",
+    holdingCompany: "",
+    lastInspection: a4(), anyViolations: a4(),
+    meetingRatios: a4(), parentComplaints: a4(),
+  };
+}
+
+// ── State loading ──
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const p = JSON.parse(saved);
+      if (p && p.locations && p.locations.length === NUM_LOCATIONS) {
+        if (!p.diagnostics) p.diagnostics = defaultDiagnostics();
+        return p;
+      }
+    }
+  } catch(e) {}
+  return null;
+}
+
+function saveState() {
+  try {
+    const toSave = { currentLoc: state.currentLoc, tab: state.tab, submitted: false, sendStatus: "", locations: state.locations, diagnostics: state.diagnostics };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    const toast = document.getElementById("save-toast");
+    if (toast) { toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 1500); }
+  } catch(e) {}
+}
+
+let state = loadState() || {
+  currentLoc: 0, tab: "ops", submitted: false, sendStatus: "",
+  locations: Array.from({length: NUM_LOCATIONS}, defaultLocation),
+  diagnostics: defaultDiagnostics(),
+};
+
+let saveTimer = null;
+function debouncedSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 800); }
+
+// ── State setters ──
+
+function loc() { return state.locations[state.currentLoc]; }
+
+function set(field, val) {
+  state.locations[state.currentLoc][field] = val;
+  render(); debouncedSave();
+}
+
+function setFunding(programId, key, val) {
+  const f = state.locations[state.currentLoc].funding;
+  if (!f[programId]) f[programId] = {};
+  f[programId][key] = val;
+  render(); debouncedSave();
+}
+
+function toggleCheckbox(programId, key, val) {
+  const f = state.locations[state.currentLoc].funding;
+  if (!f[programId]) f[programId] = {};
+  const arr = f[programId][key] || [];
+  const idx = arr.indexOf(val);
+  if (idx >= 0) arr.splice(idx, 1); else arr.push(val);
+  f[programId][key] = arr;
+  render(); debouncedSave();
+}
+
+function setDiag(field, val) {
+  state.diagnostics[field] = val;
+  render(); debouncedSave();
+}
+
+function setDiagLoc(field, locIdx, val) {
+  state.diagnostics[field][locIdx] = val;
+  render(); debouncedSave();
+}
+
+// ── DOM helpers ──
+
+function h(tag, attrs, ...children) {
+  const el = document.createElement(tag);
+  if (attrs) Object.entries(attrs).forEach(([k,v]) => {
+    if (k === "className") el.className = v;
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === "html") el.innerHTML = v;
+    else el.setAttribute(k, v);
+  });
+  children.flat(Infinity).forEach(c => {
+    if (c == null) return;
+    el.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  });
+  return el;
+}
+
+function pillGroup(value, options, onChange) {
+  return h("div", {className:"pill-group"}, options.map(o => {
+    const v = o.v || o, l = o.l || o;
+    return h("button", { type:"button", className: "pill" + (value === v ? " selected" : ""), onClick: () => onChange(v) }, l);
+  }));
+}
+
+function checkboxGroup(values, options, programId, key) {
+  const arr = values || [];
+  return h("div", {className:"pill-group"}, options.map(o => {
+    const v = o.v || o, l = o.l || o;
+    return h("button", { type:"button", className: "pill" + (arr.includes(v) ? " selected" : ""), onClick: () => toggleCheckbox(programId, key, v) }, l);
+  }));
+}
+
+function inputEl(type, value, onChange, opts = {}) {
+  const inp = h("input", { type, value: value || "", placeholder: opts.ph || "", onInput: e => onChange(e.target.value) });
+  if (opts.prefix) {
+    return h("div", {className:"prefix-wrap"}, h("span", {className:"prefix"}, opts.prefix), inp);
+  }
+  return inp;
+}
+
+function textareaEl(value, onChange, ph) {
+  return h("textarea", {rows:"3", placeholder: ph || "", onInput: e => onChange(e.target.value)}, value || "");
+}
+
+function sectionHeader(n, title, sub, purple) {
+  return h("div", {className:"sh"},
+    h("div", {className:"sh-row"},
+      h("div", {className: "sh-num" + (purple ? " purple" : "")}, String(n)),
+      h("div", {className:"sh-title"}, title),
+    ),
+    sub ? h("p", {className:"sh-sub"}, sub) : null,
+  );
+}
+
+function field(label, hint, content, req) {
+  return h("div", {className:"field"},
+    h("label", {className:"field-label", html: label + (req ? ' <span class="req">*</span>' : '')}),
+    hint ? h("p", {className:"field-hint"}, hint) : null,
+    content,
+  );
+}
+
+function locName(i) {
+  return state.locations[i].name || ("Location " + (i + 1));
+}
+
+function locHasData(i) {
+  const l = state.locations[i];
+  return !!(l.name || l.licensedCapacity || l.currentEnrollment || l.parentFees);
+}
+
+// Per-location input grid for diagnostics
+function diagLocInput(label, hint, fieldKey, type, opts = {}) {
+  const d = state.diagnostics;
+  const grid = h("div", {className:"loc-diag-grid"});
+  for (let i = 0; i < NUM_LOCATIONS; i++) {
+    const cell = h("div", {className:"loc-diag-cell"});
+    cell.appendChild(h("div", {className:"loc-label"}, locName(i)));
+    if (type === "number") {
+      cell.appendChild(inputEl("number", d[fieldKey][i], v => setDiagLoc(fieldKey, i, v), {ph: opts.ph || "", prefix: opts.prefix}));
+    } else if (type === "text") {
+      cell.appendChild(inputEl("text", d[fieldKey][i], v => setDiagLoc(fieldKey, i, v), {ph: opts.ph || ""}));
+    } else if (type === "radio" && opts.options) {
+      cell.appendChild(pillGroup(d[fieldKey][i], opts.options, v => setDiagLoc(fieldKey, i, v)));
+    }
+    grid.appendChild(cell);
+  }
+  return field(label, hint, grid);
+}
+
+// ── Funding card ──
+
+function fundingCard(p) {
+  const d = loc().funding[p.id] || {};
+  const closed = p.status === "CLOSED";
+  const card = h("div", {className: "funding-card" + (closed ? " closed" : "")});
+
+  card.appendChild(h("div", {className:"fc-header"},
+    h("h3", {className:"fc-name"}, p.name),
+    h("span", {className: "fc-badge " + (closed ? "closed" : "active")}, p.status),
+  ));
+
+  card.appendChild(h("a", {className:"fc-link", href: p.url, target:"_blank", rel:"noopener"}, "\ud83d\udd17 " + p.url.replace("https://www.","")));
+  if (p.urlNote) card.appendChild(h("p", {className:"fc-url-note"}, p.urlNote));
+  card.appendChild(h("p", {className:"fc-desc"}, p.desc));
+  if (p.statusNote) card.appendChild(h("p", {className: "fc-status-note " + (closed?"closed":"active")}, "\u24d8 " + p.statusNote));
+
+  p.questions.forEach(q => {
+    const qDiv = h("div", {className:"fc-q"});
+    qDiv.appendChild(h("label", null, q.label));
+    if (q.type === "radio") qDiv.appendChild(pillGroup(d[q.key] || "", q.options, v => setFunding(p.id, q.key, v)));
+    else if (q.type === "number") qDiv.appendChild(inputEl("number", d[q.key], v => setFunding(p.id, q.key, v), {ph: q.ph, prefix: "$"}));
+    else if (q.type === "text") qDiv.appendChild(inputEl("text", d[q.key], v => setFunding(p.id, q.key, v), {ph: q.ph}));
+    else if (q.type === "checkbox") qDiv.appendChild(checkboxGroup(d[q.key], q.options, p.id, q.key));
+    card.appendChild(qDiv);
+  });
+  return card;
+}
+
+// ── Build JSON payload ──
+
+function buildPayload() {
+  return {
+    submitted_at: new Date().toISOString(),
+    survey_version: "3.0",
+    respondent: "Arpit",
+    locations: state.locations.map((l, i) => ({
+      location_number: i + 1,
+      identity: { name: l.name, address: l.address, legal_entity: l.legalEntity, entity_type: l.entityType, profit_status: l.profitStatus },
+      capacity: {
+        licensed: num(l.licensedCapacity), enrolled: num(l.currentEnrollment), special_needs: num(l.childrenSpecialNeeds),
+        waitlist: num(l.waitlistSize), occupancy_pct: num(l.occupancyRate),
+        age_groups: {
+          infants: { ft: num(l.ageInfantsFT), pt: num(l.ageInfantsPT) },
+          toddlers: { ft: num(l.ageToddlersFT), pt: num(l.ageToddlersPT) },
+          preschool: { ft: num(l.agePreschoolFT), pt: num(l.agePreschoolPT) },
+          kindergarten: { ft: num(l.ageKinderFT), pt: num(l.ageKinderPT) },
+          school_age: { ft: num(l.ageSchoolAgeFT), pt: num(l.ageSchoolAgePT) },
+        },
+      },
+      operations: { hours: l.operatingHours, extended_hours: l.extendedHours, days_per_week: num(l.daysPerWeek), weeks_per_year: num(l.weeksPerYear) },
+      revenue_monthly: { parent_fees: num(l.parentFees), affordability_grant: num(l.affordabilityGrant), wage_topup: num(l.wageTopUp), other_gov: num(l.otherGovFunding), other: num(l.otherRevenue), other_desc: l.otherRevenueDesc },
+      expenses_monthly: { rent: num(l.rent), payroll: num(l.payroll), other: num(l.otherExpenses), owner_salary: l.ownerSalary },
+      staff: { total_eces: num(l.totalECEs), level_1: num(l.eceL1), level_2: num(l.eceL2), level_3: num(l.eceL3), uncertified: num(l.uncertified), turnover_12mo: num(l.turnover), vacancies: num(l.vacancies) },
+      funding: l.funding,
+      notes: { biggest_challenge: l.biggestChallenge, additional: l.notes },
+    })),
+    diagnostics: state.diagnostics,
+  };
+}
+
+function num(v) { return v === "" || v == null ? null : Number(v); }
+
+// ── Submit ──
+
+async function submitSurvey() {
+  const payload = buildPayload();
+  const submitBtn = document.querySelector(".btn-submit");
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = "Submitting\u2026"; }
+
+  try {
+    const res = await fetch(SUBMIT_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+    const data = await res.json();
+    state.sendStatus = (res.ok && data.ok) ? "ok" : "error:" + (data.error || res.status);
+  } catch (e) {
+    state.sendStatus = "error:" + e.message;
+  }
+
+  state.submitted = true;
+  state.payload = payload;
+  localStorage.removeItem(STORAGE_KEY);
+  render();
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+// ── Render: main ──
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  if (state.submitted) { renderDone(app); return; }
+
+  const cl = state.currentLoc;
+  const isDiag = cl === NUM_LOCATIONS;
+
+  // Sticky nav
+  const navInner = h("div", {className:"sticky-inner"});
+
+  const locTabs = h("div", {className:"loc-tabs"});
+  for (let i = 0; i < NUM_LOCATIONS; i++) {
+    const label = state.locations[i].name ? state.locations[i].name.substring(0,10) : "Loc " + (i+1);
+    const check = locHasData(i) ? " \u2713" : "";
+    locTabs.appendChild(h("button", {
+      type:"button", className: "loc-tab" + (cl === i ? " active" : ""),
+      onClick: () => { state.currentLoc = i; render(); scrollTop(); },
+    }, label + check));
+  }
+  locTabs.appendChild(h("button", {
+    type:"button", className: "loc-tab diag-tab" + (isDiag ? " active" : ""),
+    onClick: () => { state.currentLoc = NUM_LOCATIONS; render(); scrollTop(); },
+  }, "Business Diagnostics"));
+  navInner.appendChild(locTabs);
+
+  if (!isDiag) {
+    navInner.appendChild(h("div", {className:"section-tabs"},
+      h("button", {type:"button", className:"section-tab" + (state.tab==="ops"?" active":""), onClick:()=>{state.tab="ops";render();}}, "Operations & Financials"),
+      h("button", {type:"button", className:"section-tab" + (state.tab==="funding"?" active":""), onClick:()=>{state.tab="funding";render();}}, "Funding Programs (9)"),
+    ));
+  }
+
+  app.appendChild(h("div", {className:"sticky-nav"}, navInner));
+  app.appendChild(h("div", {id:"top-anchor"}));
+
+  // Header
+  if (isDiag) {
+    app.appendChild(h("div", {className:"page-header"},
+      h("p", {className:"tag", style:"color:#6366f1"}, "ACPC Daycare Diagnostic"),
+      h("h1", null, "Business Diagnostics"),
+      h("p", {className:"sub"}, "These questions look across all your locations to find revenue leakage, structural issues, and optimization opportunities."),
+    ));
+  } else {
+    const L = loc();
+    app.appendChild(h("div", {className:"page-header"},
+      h("p", {className:"tag"}, "ACPC Daycare Diagnostic"),
+      h("h1", null, L.name || "Location " + (cl + 1)),
+      h("p", {className:"sub"}, state.tab === "ops"
+        ? "Operations, enrollment, revenue, expenses, staffing."
+        : "Every Alberta funding program \u2014 verified links. Check what you\u2019re getting and what you\u2019re missing."
+      ),
+    ));
+  }
+
+  const wrap = h("div", {className:"wrap"});
+  app.appendChild(wrap);
+
+  if (isDiag) renderDiagnostics(wrap);
+  else if (state.tab === "ops") renderOps(wrap, loc());
+  else renderFunding(wrap, loc());
+
+  // Nav buttons
+  const navRow = h("div", {className:"nav-row"});
+  navRow.appendChild(h("button", {type:"button", className:"btn btn-secondary", disabled: cl===0, onClick:()=>{
+    if (cl > 0) { state.currentLoc = cl - 1; render(); scrollTop(); }
+  }}, "\u2190 Previous"));
+
+  if (isDiag) {
+    navRow.appendChild(h("button", {type:"button", className:"btn btn-submit", onClick: submitSurvey}, "Submit Everything \u2192"));
+  } else {
+    navRow.appendChild(h("button", {type:"button", className:"btn btn-primary", onClick:()=>{
+      state.currentLoc = cl + 1; render(); scrollTop();
+    }}, cl === NUM_LOCATIONS - 1 ? "Next: Business Diagnostics \u2192" : "Next Location \u2192"));
+  }
+  wrap.appendChild(navRow);
+}
+
+function scrollTop() { document.getElementById("top-anchor")?.scrollIntoView({behavior:"smooth"}); }
+
+// ── Render: Operations ──
+
+function renderOps(wrap, L) {
+  const card = h("div", {className:"card"});
+  wrap.appendChild(card);
+
+  card.appendChild(sectionHeader(1, "Location Identity"));
+  card.appendChild(field("Daycare Name", null, inputEl("text", L.name, v=>set("name",v), {ph:"e.g. Sunshine Kids NW"}), true));
+  card.appendChild(field("Full Address", null, inputEl("text", L.address, v=>set("address",v), {ph:"Street, Calgary, AB T2X..."})));
+  card.appendChild(field("Legal Entity", "Corporation or sole prop holding the licence", inputEl("text", L.legalEntity, v=>set("legalEntity",v), {ph:"e.g. 1234567 Alberta Ltd."})));
+  card.appendChild(field("Entity Type", null, pillGroup(L.entityType, ["Corporation","Sole Prop","Partnership"], v=>set("entityType",v))));
+  card.appendChild(field("For-Profit / Non-Profit?", null, pillGroup(L.profitStatus, ["For-Profit","Non-Profit"], v=>set("profitStatus",v)), true));
+
+  card.appendChild(sectionHeader(2, "Capacity & Enrollment", "FT (100+ hrs/mo) vs PT (50-99 hrs/mo) directly changes funding."));
+  const capGrid = h("div", {className:"grid-3"});
+  capGrid.appendChild(field("Licensed Capacity", null, inputEl("number", L.licensedCapacity, v=>set("licensedCapacity",v)), true));
+  capGrid.appendChild(field("Current Enrollment", null, inputEl("number", L.currentEnrollment, v=>set("currentEnrollment",v)), true));
+  capGrid.appendChild(field("Special Needs", null, inputEl("number", L.childrenSpecialNeeds, v=>set("childrenSpecialNeeds",v))));
+  card.appendChild(capGrid);
+
+  const ageWrap = h("div", {className:"field"});
+  ageWrap.appendChild(h("label", {className:"field-label"}, "Enrollment by Age (FT / PT)"));
+  const ag = h("div", {className:"age-grid"});
+  ag.appendChild(h("span")); ag.appendChild(h("span", {className:"col-header"}, "Full-Time")); ag.appendChild(h("span", {className:"col-header"}, "Part-Time"));
+  [["Infants (0-18mo)","ageInfantsFT","ageInfantsPT"],["Toddlers (19mo-3yr)","ageToddlersFT","ageToddlersPT"],["Preschool (3-4yr)","agePreschoolFT","agePreschoolPT"],["Kindergarten","ageKinderFT","ageKinderPT"],["School-Age (Gr 1-6)","ageSchoolAgeFT","ageSchoolAgePT"]].forEach(([lbl,fk,pk])=>{
+    ag.appendChild(h("span", {className:"row-label"}, lbl));
+    ag.appendChild(inputEl("number", L[fk], v=>set(fk,v), {ph:"0"}));
+    ag.appendChild(inputEl("number", L[pk], v=>set(pk,v), {ph:"0"}));
+  });
+  ageWrap.appendChild(ag); card.appendChild(ageWrap);
+
+  const wg = h("div", {className:"grid-2"});
+  wg.appendChild(field("Waitlist", null, inputEl("number", L.waitlistSize, v=>set("waitlistSize",v))));
+  wg.appendChild(field("Occupancy %", null, inputEl("number", L.occupancyRate, v=>set("occupancyRate",v), {ph:"e.g. 85"})));
+  card.appendChild(wg);
+
+  card.appendChild(sectionHeader(3, "Operating Schedule", "Extended hours and weekends unlock additional revenue."));
+  card.appendChild(field("Regular Hours", null, inputEl("text", L.operatingHours, v=>set("operatingHours",v), {ph:"7:00 AM \u2013 6:00 PM"})));
+  card.appendChild(field("Extended hours?", "Before 6 AM, after 6 PM, or weekends.", pillGroup(L.extendedHours, ["Yes","No","Considering"], v=>set("extendedHours",v))));
+  const og = h("div", {className:"grid-2"});
+  og.appendChild(field("Days/Week", null, pillGroup(L.daysPerWeek, ["5","6","7"], v=>set("daysPerWeek",v))));
+  og.appendChild(field("Weeks/Year", null, inputEl("number", L.weeksPerYear, v=>set("weeksPerYear",v), {ph:"50"})));
+  card.appendChild(og);
+
+  card.appendChild(sectionHeader(4, "Monthly Revenue", "Approximate is fine."));
+  const rg1 = h("div", {className:"grid-2"});
+  rg1.appendChild(field("Parent Fees", null, inputEl("number", L.parentFees, v=>set("parentFees",v), {prefix:"$"}), true));
+  rg1.appendChild(field("Affordability Grant", null, inputEl("number", L.affordabilityGrant, v=>set("affordabilityGrant",v), {prefix:"$"})));
+  card.appendChild(rg1);
+  const rg2 = h("div", {className:"grid-2"});
+  rg2.appendChild(field("Wage Top-Up", null, inputEl("number", L.wageTopUp, v=>set("wageTopUp",v), {prefix:"$"})));
+  rg2.appendChild(field("Other Gov Funding", null, inputEl("number", L.otherGovFunding, v=>set("otherGovFunding",v), {prefix:"$"})));
+  card.appendChild(rg2);
+  const rg3 = h("div", {className:"grid-1-2"});
+  rg3.appendChild(inputEl("number", L.otherRevenue, v=>set("otherRevenue",v), {prefix:"$", ph:"Amt"}));
+  rg3.appendChild(inputEl("text", L.otherRevenueDesc, v=>set("otherRevenueDesc",v), {ph:"Describe other revenue"}));
+  card.appendChild(field("Other Revenue", null, rg3));
+
+  card.appendChild(sectionHeader(5, "Monthly Expenses"));
+  const eg = h("div", {className:"grid-3"});
+  eg.appendChild(field("Rent/Mortgage", null, inputEl("number", L.rent, v=>set("rent",v), {prefix:"$"})));
+  eg.appendChild(field("Total Payroll", null, inputEl("number", L.payroll, v=>set("payroll",v), {prefix:"$"})));
+  eg.appendChild(field("All Other", null, inputEl("number", L.otherExpenses, v=>set("otherExpenses",v), {prefix:"$"})));
+  card.appendChild(eg);
+  card.appendChild(field("Owner salary in payroll?", null, pillGroup(L.ownerSalary, ["Yes \u2014 included","No \u2014 draws separately","No salary"], v=>set("ownerSalary",v))));
+
+  card.appendChild(sectionHeader(6, "Staff & Certification", "ECE levels set wage top-up: L1=$2.64, L2=$5.05, L3=$8.62 per hour."));
+  card.appendChild(field("Total ECEs", null, inputEl("number", L.totalECEs, v=>set("totalECEs",v))));
+  const sg1 = h("div", {className:"grid-3"});
+  sg1.appendChild(field("Level 1", null, inputEl("number", L.eceL1, v=>set("eceL1",v), {ph:"0"})));
+  sg1.appendChild(field("Level 2", null, inputEl("number", L.eceL2, v=>set("eceL2",v), {ph:"0"})));
+  sg1.appendChild(field("Level 3", null, inputEl("number", L.eceL3, v=>set("eceL3",v), {ph:"0"})));
+  card.appendChild(sg1);
+  const sg2 = h("div", {className:"grid-3"});
+  sg2.appendChild(field("Uncertified", null, inputEl("number", L.uncertified, v=>set("uncertified",v), {ph:"0"})));
+  sg2.appendChild(field("Turnover (12mo)", null, inputEl("number", L.turnover, v=>set("turnover",v), {ph:"0"})));
+  sg2.appendChild(field("Vacancies", null, inputEl("number", L.vacancies, v=>set("vacancies",v), {ph:"0"})));
+  card.appendChild(sg2);
+
+  card.appendChild(sectionHeader(7, "Challenges & Notes"));
+  card.appendChild(field("Biggest financial challenge?", null, textareaEl(L.biggestChallenge, v=>set("biggestChallenge",v), "What\u2019s keeping you up at night...")));
+  card.appendChild(field("Anything else?", null, textareaEl(L.notes, v=>set("notes",v), "Expansion plans, lease expiry, pending apps...")));
+}
+
+// ── Render: Funding ──
+
+function renderFunding(wrap, L) {
+  wrap.appendChild(h("div", {className:"funding-banner"},
+    h("p", {html: 'Every program below links directly to <strong>alberta.ca</strong>. Each link verified. \ud83d\udfe2 ACTIVE = accepting. \ud83d\udfe1 CLOSED = still need to know if you received anything. "Not aware" answers are exactly why we\u2019re doing this.'}),
+  ));
+  FUNDING_PROGRAMS.forEach(p => wrap.appendChild(fundingCard(p)));
+}
+
+// ── Render: Diagnostics ──
+
+function renderDiagnostics(wrap) {
+  const D = state.diagnostics;
+
+  wrap.appendChild(h("div", {className:"diag-banner"},
+    h("p", null, "These questions help identify revenue leakage, structural issues, and areas where you may be losing money without realizing it. Answer for your business overall \u2014 some questions ask about each location side by side."),
+  ));
+
+  // ─── 1. Enrollment & Revenue Leakage ───
+  const c1 = h("div", {className:"card"});
+  wrap.appendChild(c1);
+  c1.appendChild(sectionHeader(1, "Enrollment & Revenue Leakage", "Empty spots, slow fills, and uncollected money.", true));
+
+  c1.appendChild(diagLocInput("Days to fill a vacant spot", "When a child leaves, how many days until that spot is filled by a new child?", "vacancyGapDays", "number", {ph:"e.g. 14"}));
+  c1.appendChild(diagLocInput("Children who left in last 12 months", null, "childTurnover12mo", "number", {ph:"0"}));
+  c1.appendChild(diagLocInput("Outstanding parent payment balances ($)", "How much do parents currently owe you at each location?", "outstandingBalances", "number", {ph:"0", prefix:"$"}));
+
+  c1.appendChild(field("Offering sibling discounts?", null, pillGroup(D.siblingDiscounts, [{v:"yes",l:"Yes"},{v:"no",l:"No"}], v=>setDiag("siblingDiscounts",v))));
+  if (D.siblingDiscounts === "yes") c1.appendChild(field("What discount?", null, inputEl("text", D.siblingDiscountDetail, v=>setDiag("siblingDiscountDetail",v), {ph:"e.g. 10% off second child"})));
+
+  c1.appendChild(field("Offering staff child discounts?", null, pillGroup(D.staffDiscounts, [{v:"yes",l:"Yes"},{v:"no",l:"No"}], v=>setDiag("staffDiscounts",v))));
+  if (D.staffDiscounts === "yes") c1.appendChild(field("What discount?", null, inputEl("text", D.staffDiscountDetail, v=>setDiag("staffDiscountDetail",v), {ph:"e.g. Free care for staff children"})));
+
+  c1.appendChild(field("Any children enrolled as full-time but actually attending part-time hours?", "If yes, you may be claiming FT funding for PT attendance, or losing revenue on the mismatch.", pillGroup(D.ftPtMismatch, [{v:"yes",l:"Yes \u2014 some"},{v:"no",l:"No \u2014 all match"},{v:"not-sure",l:"Not sure"}], v=>setDiag("ftPtMismatch",v))));
+
+  // ─── 2. Food & Absorbed Costs ───
+  const c2 = h("div", {className:"card"});
+  wrap.appendChild(c2);
+  c2.appendChild(sectionHeader(2, "Food & Cost Absorption", "Costs you\u2019re eating (literally) that could be covered by supplemental fees.", true));
+
+  c2.appendChild(diagLocInput("Who provides meals?", null, "mealProvider", "radio", {options:[{v:"parents",l:"Parents bring"},{v:"daycare",l:"We provide"},{v:"mix",l:"Mix"}]}));
+  c2.appendChild(diagLocInput("Monthly food cost ($)", "If you provide meals, how much per month?", "monthlyFoodCost", "number", {ph:"e.g. 2000", prefix:"$"}));
+
+  c2.appendChild(field("Absorbing cost of diapers, wipes, sunscreen, art supplies?", null, pillGroup(D.absorbingSupplies, [{v:"yes-all",l:"Yes \u2014 we buy everything"},{v:"yes-some",l:"Some \u2014 parents bring some"},{v:"no",l:"No \u2014 parents provide"}], v=>setDiag("absorbingSupplies",v))));
+  if (D.absorbingSupplies === "yes-all" || D.absorbingSupplies === "yes-some") {
+    c2.appendChild(field("Estimated monthly supply cost across all locations ($)", null, inputEl("number", D.suppliesMonthlyCost, v=>setDiag("suppliesMonthlyCost",v), {prefix:"$", ph:"e.g. 1500"})));
+  }
+
+  // ─── 3. Lease & Facility ───
+  const c3 = h("div", {className:"card"});
+  wrap.appendChild(c3);
+  c3.appendChild(sectionHeader(3, "Lease & Facility", "Lease risk, rent trajectory, and deferred capital needs.", true));
+
+  c3.appendChild(diagLocInput("Own or lease?", null, "ownOrLease", "radio", {options:[{v:"own",l:"Own"},{v:"lease",l:"Lease"}]}));
+  c3.appendChild(diagLocInput("Lease expiry date", "When does your current lease end?", "leaseExpiry", "text", {ph:"e.g. Sept 2027"}));
+  c3.appendChild(diagLocInput("Rent increase planned?", null, "rentIncreasePlanned", "radio", {options:[{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"dk",l:"Don\u2019t know"},{v:"na",l:"N/A \u2014 own"}]}));
+  c3.appendChild(diagLocInput("Deferred maintenance / capital needs?", "Anything you\u2019ve been putting off \u2014 roof, HVAC, playground, etc.", "deferredMaintenance", "text", {ph:"e.g. Playground needs resurfacing"}));
+
+  // ─── 4. Staffing Efficiency ───
+  const c4 = h("div", {className:"card"});
+  wrap.appendChild(c4);
+  c4.appendChild(sectionHeader(4, "Staffing Efficiency", "Are you overstaffed, understaffed, or paying more than you need to?", true));
+
+  c4.appendChild(diagLocInput("Current staff-to-child ratio", "What\u2019s the actual ratio right now (not the licensed minimum)?", "staffChildRatio", "text", {ph:"e.g. 1:6"}));
+
+  c4.appendChild(field("Total admin / non-frontline staff across all locations", null, inputEl("number", D.adminStaffCount, v=>setDiag("adminStaffCount",v), {ph:"e.g. 3"})));
+  c4.appendChild(field("Director/manager coverage", null, pillGroup(D.directorCoverage, [{v:"one-per-site",l:"One per site"},{v:"one-covers-multiple",l:"One covers 2+ sites"},{v:"owner-is-director",l:"I\u2019m the director"},{v:"no-dedicated",l:"No dedicated director"}], v=>setDiag("directorCoverage",v))));
+
+  const wageGrid = h("div", {className:"grid-4"});
+  wageGrid.appendChild(field("Avg wage L1", null, inputEl("number", D.avgWageL1, v=>setDiag("avgWageL1",v), {prefix:"$", ph:"/hr"})));
+  wageGrid.appendChild(field("Avg wage L2", null, inputEl("number", D.avgWageL2, v=>setDiag("avgWageL2",v), {prefix:"$", ph:"/hr"})));
+  wageGrid.appendChild(field("Avg wage L3", null, inputEl("number", D.avgWageL3, v=>setDiag("avgWageL3",v), {prefix:"$", ph:"/hr"})));
+  wageGrid.appendChild(field("Avg uncertified", null, inputEl("number", D.avgWageUncertified, v=>setDiag("avgWageUncertified",v), {prefix:"$", ph:"/hr"})));
+  c4.appendChild(field("Average hourly wages by certification level", "What are you paying (before wage top-up)?", wageGrid));
+
+  c4.appendChild(field("Staff eligible for ECE certification upgrade", "How many current staff could move up a level with training?", inputEl("number", D.staffEligibleUpgrade, v=>setDiag("staffEligibleUpgrade",v), {ph:"e.g. 4"})));
+
+  // ─── 5. Financial Infrastructure ───
+  const c5 = h("div", {className:"card"});
+  wrap.appendChild(c5);
+  c5.appendChild(sectionHeader(5, "Financial Infrastructure", "How your books, payments, and taxes are set up.", true));
+
+  c5.appendChild(field("Do you have a bookkeeper or accountant?", null, pillGroup(D.hasAccountant, [{v:"bookkeeper",l:"Bookkeeper"},{v:"accountant",l:"Accountant/CPA"},{v:"both",l:"Both"},{v:"no",l:"Neither \u2014 I do it"},{v:"family",l:"Family member"}], v=>setDiag("hasAccountant",v))));
+  if (D.hasAccountant && D.hasAccountant !== "no") {
+    c5.appendChild(field("Who? (name or firm)", null, inputEl("text", D.accountantWho, v=>setDiag("accountantWho",v), {ph:"e.g. ABC Accounting"})));
+  }
+
+  c5.appendChild(field("Accounting software", null, pillGroup(D.accountingSoftware, [{v:"quickbooks",l:"QuickBooks"},{v:"xero",l:"Xero"},{v:"wave",l:"Wave"},{v:"sage",l:"Sage"},{v:"spreadsheets",l:"Spreadsheets"},{v:"nothing",l:"Nothing"},{v:"other",l:"Other"}], v=>setDiag("accountingSoftware",v))));
+
+  c5.appendChild(field("How do parents pay you?", null, pillGroup(D.parentPaymentMethod, [{v:"software",l:"Childcare software"},{v:"etransfer",l:"E-Transfer"},{v:"cash-cheque",l:"Cash / Cheque"},{v:"preauth",l:"Pre-authorized debit"},{v:"mix",l:"Mix of methods"}], v=>setDiag("parentPaymentMethod",v))));
+
+  c5.appendChild(field("Are the 4 locations on separate books?", "Or is everything combined in one set of books?", pillGroup(D.separateBooks, [{v:"separate",l:"Separate books per location"},{v:"combined",l:"All combined"},{v:"not-sure",l:"Not sure"}], v=>setDiag("separateBooks",v))));
+
+  c5.appendChild(field("Registered for GST?", null, pillGroup(D.gstRegistered, [{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}], v=>setDiag("gstRegistered",v))));
+  if (D.gstRegistered === "yes") {
+    c5.appendChild(field("GST filings up to date?", null, pillGroup(D.gstFilingCurrent, [{v:"yes",l:"Yes"},{v:"no",l:"Behind"},{v:"not-sure",l:"Not sure"}], v=>setDiag("gstFilingCurrent",v))));
+  }
+
+  // ─── 6. Tax & Corporate Structure ───
+  const c6 = h("div", {className:"card"});
+  wrap.appendChild(c6);
+  c6.appendChild(sectionHeader(6, "Tax & Corporate Structure", "How your business is structured affects what you keep.", true));
+
+  c6.appendChild(field("How do you pay yourself?", null, pillGroup(D.ownerCompensation, [{v:"salary",l:"Salary"},{v:"dividends",l:"Dividends"},{v:"draws",l:"Owner draws"},{v:"mix",l:"Mix"},{v:"nothing",l:"No formal pay"}], v=>setDiag("ownerCompensation",v))));
+
+  c6.appendChild(field("Are all 4 locations under one corporation?", null, pillGroup(D.corporateStructure, [{v:"one-corp",l:"Yes \u2014 one corp"},{v:"separate-corps",l:"Separate corps"},{v:"sole-prop",l:"Sole proprietorship"},{v:"mix",l:"Mix"}], v=>setDiag("corporateStructure",v))));
+
+  c6.appendChild(field("Using the Small Business Deduction?", "Reduces corporate tax rate on first $500K of active business income.", pillGroup(D.smallBusinessDeduction, [{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"},{v:"na",l:"N/A \u2014 sole prop"}], v=>setDiag("smallBusinessDeduction",v))));
+
+  c6.appendChild(field("Any personal expenses flowing through the business?", "Vehicle, phone, home office, personal purchases on business accounts.", pillGroup(D.personalExpenses, [{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}], v=>setDiag("personalExpenses",v))));
+  if (D.personalExpenses === "yes") {
+    c6.appendChild(field("Which expenses?", null, inputEl("text", D.personalExpensesDetail, v=>setDiag("personalExpensesDetail",v), {ph:"e.g. Vehicle, cell phone, home office"})));
+  }
+
+  c6.appendChild(field("Do you have a holding company?", null, pillGroup(D.holdingCompany, [{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure / what is that?"}], v=>setDiag("holdingCompany",v))));
+
+  // ─── 7. Compliance & Licensing ───
+  const c7 = h("div", {className:"card"});
+  wrap.appendChild(c7);
+  c7.appendChild(sectionHeader(7, "Compliance & Licensing", "Licensing risk can shut a location down overnight.", true));
+
+  c7.appendChild(diagLocInput("Last licensing inspection", null, "lastInspection", "text", {ph:"e.g. Mar 2026"}));
+  c7.appendChild(diagLocInput("Any violations or conditions on licence?", null, "anyViolations", "radio", {options:[{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}]}));
+  c7.appendChild(diagLocInput("Meeting all ratio requirements?", null, "meetingRatios", "radio", {options:[{v:"yes",l:"Yes \u2014 always"},{v:"sometimes",l:"Sometimes short"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}]}));
+  c7.appendChild(diagLocInput("Any parent complaints filed with licensing?", null, "parentComplaints", "radio", {options:[{v:"yes",l:"Yes"},{v:"no",l:"No"},{v:"not-sure",l:"Not sure"}]}));
+}
+
+// ── Render: Done ──
+
+function renderDone(app) {
+  const wrap = h("div", {className:"done-wrap"});
+  wrap.appendChild(h("div", {html: '<div style="font-size:56px;margin-bottom:16px">\u2705</div>'}));
+  wrap.appendChild(h("h1", null, "Survey Complete"));
+
+  if (state.sendStatus === "ok") {
+    wrap.appendChild(h("p", {className:"sub"}, "Your responses have been sent to Nav. Thank you, Arpit! Nav will be in touch with the analysis."));
+  } else if (state.sendStatus && state.sendStatus.startsWith("error")) {
+    wrap.appendChild(h("p", {className:"sub", html: "There was an issue submitting automatically. Please <strong>copy the text below</strong> and send it to Nav directly."}));
+    const json = JSON.stringify(state.payload, null, 2);
+    const ta = h("textarea", {readonly:"true", style:"width:100%;height:300px;font-size:12px;font-family:monospace;margin-top:16px;"}); ta.value = json;
+    wrap.appendChild(ta);
+    wrap.appendChild(h("div", {style:"margin-top:12px;"},
+      h("button", {type:"button", className:"btn btn-primary", onClick:()=>{ navigator.clipboard.writeText(json).then(()=>alert("Copied!")); }}, "Copy JSON"),
+    ));
+  }
+
+  app.appendChild(wrap);
+}
+
+// ── Init ──
+render();
+</script>
+</body>
+</html>

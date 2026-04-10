@@ -1,0 +1,25 @@
+name: Deploy ArpitDaycares
+
+on:
+  push:
+    branches: [main]
+    paths: ['arpitdaycares/**']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./arpitdaycares/
+          server-dir: ./
+          exclude: |
+            **/.DS_Store
+            **/responses/**
